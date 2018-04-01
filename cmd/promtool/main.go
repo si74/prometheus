@@ -16,6 +16,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -57,6 +58,15 @@ func main() {
 	updateRulesCmd := updateCmd.Command("rules", "Update rules from the 1.x to 2.x format.")
 	ruleFilesUp := updateRulesCmd.Arg("rule-files", "The rule files to update.").Required().ExistingFiles()
 
+	queryCmd := app.Command("query", "Run query against a Prometheus server.")
+	prometheusServer := queryCmd.Arg("server", "Prometheus server to query").Required().URL()
+	// timeout
+	queryInstantCmd := queryCmd.Command("instant", "Run instant query.")
+	// timestamp
+	queryRangeCmd := queryCmd.Command("range", "Run range query.")
+	// resolution step parameter - range vector
+	// timerange - 2 timestamps
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case checkConfigCmd.FullCommand():
 		os.Exit(CheckConfig(*configFiles...))
@@ -70,6 +80,11 @@ func main() {
 	case updateRulesCmd.FullCommand():
 		os.Exit(UpdateRules(*ruleFilesUp...))
 
+	case queryInstantCmd.FullCommand():
+		os.Exit(QueryInstant(*prometheusServer))
+
+	case queryRangeCmd.FullCommand():
+		os.Exit(QueryRange(*prometheusServer))
 	}
 
 }
@@ -326,3 +341,9 @@ func CheckMetrics() int {
 
 	return 0
 }
+
+// QueryInstant performs an instant query against prometheus server.
+func QueryInstant(url **url.URL) {
+}
+
+// QueryRange performs a range query against a prometheus server.
