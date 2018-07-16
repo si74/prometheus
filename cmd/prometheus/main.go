@@ -263,7 +263,7 @@ func main() {
 	)
 
 	cfg.web.Context = ctxWeb
-	cfg.web.TSDB = localStorage.Get
+	cfg.web.TSDB = localStorage
 	cfg.web.Storage = fanoutStorage
 	cfg.web.QueryEngine = queryEngine
 	cfg.web.ScrapeManager = scrapeManager

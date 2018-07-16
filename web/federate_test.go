@@ -23,6 +23,7 @@ import (
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/config"
 	"github.com/prometheus/prometheus/promql"
+	"github.com/prometheus/prometheus/storage/tsdb"
 )
 
 var scenarios = map[string]struct {
@@ -197,7 +198,10 @@ func TestFederation(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	localStorage := suite.Storage().(*tsdb.ReadyStorage)
+
 	h := &Handler{
+		tsdb:        localStorage,
 		storage:     suite.Storage(),
 		queryEngine: suite.QueryEngine(),
 		now:         func() model.Time { return 101 * 60 * 1000 }, // 101min after epoch.

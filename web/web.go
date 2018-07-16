@@ -52,7 +52,7 @@ import (
 	"github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/common/route"
-	"github.com/prometheus/tsdb"
+
 	"golang.org/x/net/netutil"
 
 	"github.com/prometheus/prometheus/config"
@@ -62,6 +62,7 @@ import (
 	"github.com/prometheus/prometheus/rules"
 	"github.com/prometheus/prometheus/scrape"
 	"github.com/prometheus/prometheus/storage"
+	"github.com/prometheus/prometheus/storage/tsdb"
 	"github.com/prometheus/prometheus/template"
 	"github.com/prometheus/prometheus/util/httputil"
 	api_v1 "github.com/prometheus/prometheus/web/api/v1"
@@ -102,7 +103,7 @@ type Handler struct {
 	ruleManager   *rules.Manager
 	queryEngine   *promql.Engine
 	context       context.Context
-	tsdb          func() *tsdb.DB
+	tsdb          *tsdb.ReadyStorage
 	storage       storage.Storage
 	notifier      *notifier.Manager
 
@@ -149,7 +150,7 @@ type PrometheusVersion struct {
 // Options for the web Handler.
 type Options struct {
 	Context       context.Context
-	TSDB          func() *tsdb.DB
+	TSDB          *tsdb.ReadyStorage
 	Storage       storage.Storage
 	QueryEngine   *promql.Engine
 	ScrapeManager *scrape.Manager
@@ -225,7 +226,7 @@ func New(logger log.Logger, o *Options) *Handler {
 		},
 		o.Flags,
 		h.testReady,
-		h.options.TSDB,
+		h.options.TSDB.Get,
 		h.options.EnableAdminAPI,
 	)
 
@@ -433,7 +434,7 @@ func (h *Handler) Run(ctx context.Context) error {
 	)
 	av2 := api_v2.New(
 		time.Now,
-		h.options.TSDB,
+		h.options.TSDB.Get,
 		h.options.QueryEngine,
 		h.options.Storage.Querier,
 		func() []*scrape.Target {

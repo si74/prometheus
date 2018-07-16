@@ -91,6 +91,8 @@ func TestReadyAndHealthy(t *testing.T) {
 
 	defer os.RemoveAll(dbDir)
 	db, err := libtsdb.Open(dbDir, nil, nil, nil)
+	localStorage := &tsdb.ReadyStorage{}
+	localStorage.Set(db, 0)
 
 	testutil.Ok(t, err)
 
@@ -106,9 +108,8 @@ func TestReadyAndHealthy(t *testing.T) {
 		Notifier:       nil,
 		RoutePrefix:    "/",
 		EnableAdminAPI: true,
-		TSDB:           func() *libtsdb.DB { return db },
+		TSDB:           localStorage,
 	}
-
 	opts.Flags = map[string]string{}
 
 	webHandler := New(nil, opts)
@@ -184,8 +185,9 @@ func TestRoutePrefix(t *testing.T) {
 	testutil.Ok(t, err)
 
 	defer os.RemoveAll(dbDir)
-
 	db, err := libtsdb.Open(dbDir, nil, nil, nil)
+	localStorage := &tsdb.ReadyStorage{}
+	localStorage.Set(db, 0)
 
 	testutil.Ok(t, err)
 
@@ -201,7 +203,7 @@ func TestRoutePrefix(t *testing.T) {
 		Notifier:       nil,
 		RoutePrefix:    "/prometheus",
 		EnableAdminAPI: true,
-		TSDB:           func() *libtsdb.DB { return db },
+		TSDB:           localStorage,
 	}
 
 	opts.Flags = map[string]string{}
