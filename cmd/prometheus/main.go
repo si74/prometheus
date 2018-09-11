@@ -262,6 +262,11 @@ func main() {
 		})
 	)
 
+	// TODO(sneha):
+	// - add third field called localstorage instead
+	// - rename Storage to fanoutStorage
+	// - both fields should be of type storage.Storage
+	// - fix all tests
 	cfg.web.Context = ctxWeb
 	cfg.web.TSDB = localStorage
 	cfg.web.Storage = fanoutStorage
